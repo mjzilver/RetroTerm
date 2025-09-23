@@ -1,5 +1,6 @@
 import os
 import re
+import argparse
 
 JS_DIR = "js"
 SHADER_DIR = "shaders"
@@ -7,12 +8,25 @@ SHADER_DIR = "shaders"
 TEMPLATE = "index.template.html"
 OUTPUT = "index.html"
 
+parser = argparse.ArgumentParser(description="Bundle JS and GLSL shaders into HTML.")
+parser.add_argument(
+    "--minify",
+    action="store_true",
+    help="Enable minification of JS, GLSL, and HTML (default: off)",
+)
+args = parser.parse_args()
+minify = args.minify
+
+def strip_js_imports(content):
+    content = re.sub(r"\bimport\b.*?;", "", content)
+    content = re.sub(r"\bexport\b", "", content)
+    return content.strip()
+
 def minify_js(content):
+    content = strip_js_imports(content)
     content = re.sub(r"//.*", "", content)
     content = re.sub(r"/\*.*?\*/", "", content, flags=re.DOTALL)
     content = re.sub(r"\s+", " ", content)
-    content = re.sub(r"\bimport\b.*?;", "", content)
-    content = re.sub(r"\bexport\b", "", content)
     return content.strip()
 
 def minify_glsl(content):
@@ -38,8 +52,9 @@ for file in shader_files:
     with open(path, "r", encoding="utf-8") as f:
         content = f.read()
     shader_type = "vertex" if file.endswith(".vs.glsl") else "fragment"
+    shader_content = minify_glsl(content) if minify else content
     shader_scripts.append(
-        f'<script id="{file}" type="x-shader/x-{shader_type}">{minify_glsl(content)}</script>'
+        f'<script id="{file}" type="x-shader/x-{shader_type}">{shader_content}</script>'
     )
 
 js_files = [f for f in os.listdir(JS_DIR) if f.endswith(".js")]
@@ -48,15 +63,18 @@ js_content = ""
 for file in js_files:
     path = os.path.join(JS_DIR, file)
     with open(path, "r", encoding="utf-8") as f:
-        js_content += minify_js(f.read()) + "\n"
+        content = f.read()
+        js_content += (minify_js(content) if minify else strip_js_imports(content)) + "\n"
 
 js_script_tag = f"<script>{js_content}</script>"
 
 injection = "\n".join(shader_scripts + [js_script_tag])
 html = html.replace("<!-- INJECTION_HERE -->", injection)
+if minify:
+    html = minify_html(html)
 
 with open(OUTPUT, "w", encoding="utf-8") as f:
-    f.write(minify_html(html))
+    f.write(html)
 
 def readable_bytes(num_bytes):
     for unit in ["B", "KB", "MB", "GB", "TB"]:

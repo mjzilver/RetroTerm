@@ -1,5 +1,5 @@
-import { textBuffer, drawTextBuffer } from '../terminal.js';
-import { getShaderSource } from '../shader.js';
+import { textBuffer, drawTextBuffer } from './terminal.js';
+import { getShaderSource } from './shader.js';
 
 const canvas = document.getElementById("screenCanvas");
 const gl = canvas.getContext("webgl");

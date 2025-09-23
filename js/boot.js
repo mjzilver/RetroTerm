@@ -1,4 +1,4 @@
-import {clearBuffer, writeText, pushLine} from '../buffer.js'
+import {clearBuffer, writeText, pushLine} from './buffer.js';
 
 let bootProgress = 0;
 const BOOT_TOTAL = 20;
@@ -18,12 +18,12 @@ export function drawBootScreen() {
     }
 }
 
-export function startBootSequence() {
+export function startBootEffect() {
     takingInput = false;
     bootProgress = 0;
     currentMode = APP_MODE;
 
-    const interval = setInterval(() => {
+    return interval = setInterval(() => {
         if (bootProgress < BOOT_TOTAL) {
             bootProgress++;
             drawBootScreen();

@@ -1,5 +1,6 @@
-import { startBootSequence } from './boot.js'
+import { startBootEffect } from './boot.js';
 import { makeBuffer } from './buffer.js';
+import { startMatrixEffect } from './matrix.js';
 
 export const COLS = 80;
 export const ROWS = 25;
@@ -28,6 +29,8 @@ const SHELL_MODE = "SHELL_MODE";
 const APP_MODE = "APP_MODE";
 let currentMode = SHELL_MODE;
 
+let currentEffect = null;
+
 let cursorVisible = true;
 setInterval(() => cursorVisible = !cursorVisible, 500);
 
@@ -43,9 +46,14 @@ function handleCommand(cmd) {
             pushLine(parts.slice(1).join(" "));
             break;
         case "reboot":
-            startBootSequence();
+            currentEffect = startBootEffect();
+            historyBuffer.length = 0;
+            break;
         case "clear":
             historyBuffer.length = 0;
+            break;
+        case "matrix":
+            currentEffect = startMatrixEffect();
             break;
         default:
             pushLine("Unknown command: " + parts[0]);
@@ -53,13 +61,18 @@ function handleCommand(cmd) {
 }
 
 window.addEventListener("keydown", (e) => {
-    if (!takingInput) return;
-
     if (e.ctrlKey && e.key.toLowerCase() === "c") {
         inputLine = "";
-        pushLine("^C");
+        
+        clearInterval(currentEffect);
+        takingInput = true;
+        currentMode = SHELL_MODE;
+
         return;
     }
+
+    if (!takingInput) return;
+
 
     if (e.key.length === 1 && !e.ctrlKey) {
         inputLine += e.key;
@@ -104,4 +117,4 @@ export function drawTextBuffer() {
     }
 }
 
-startBootSequence();
+startBootEffect();
