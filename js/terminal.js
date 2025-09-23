@@ -1,10 +1,13 @@
+import { startBootSequence } from './boot.js'
+import { makeBuffer } from './buffer.js';
+
 export const COLS = 80;
 export const ROWS = 25;
 export const FONT_SIZE = 18;
 export const TEXT_COLOR = "#00FF55";
 export const BG_COLOR = "#000000";
-export const ACTIVE_BOOT_BAR_COLOR  = "#00FF55";
-export const INACTIVE_BOOT_BAR_COLOR  = "#004400";
+export const ACTIVE_BOOT_BAR_COLOR = "#00FF55";
+export const INACTIVE_BOOT_BAR_COLOR = "#004400";
 
 export const CURSOR_WIDTH = 10;
 export const CURSOR_HEIGHT = FONT_SIZE - 4;
@@ -13,7 +16,7 @@ export const textBuffer = document.createElement("canvas");
 textBuffer.width = COLS * (FONT_SIZE * 0.6);
 textBuffer.height = ROWS * FONT_SIZE;
 export const ctx = textBuffer.getContext("2d");
-ctx.font = `${FONT_SIZE}px "Consolas", monospace`;
+ctx.font = `${FONT_SIZE}px "Cascadia Mono", monospace`;
 ctx.textBaseline = "top";
 
 export const historyBuffer = [];
@@ -28,71 +31,7 @@ let currentMode = SHELL_MODE;
 let cursorVisible = true;
 setInterval(() => cursorVisible = !cursorVisible, 500);
 
-let bootProgress = 0;
-const BOOT_TOTAL = 20;
-
-function makeBuffer(rows, cols) {
-    return Array.from({ length: rows }, () => Array.from({ length: cols }, () => " "));
-}
-
-function clearBuffer(buf) {
-    for (let r = 0; r < buf.length; r++) {
-        buf[r].fill(" ");
-    }
-}
-
-function writeText(row, col, text) {
-    for (let i = 0; i < text.length; i++) {
-        let c = col + i;
-        if (c >= 0 && c < COLS) {
-            screenBuffer[row][c] = text[i];
-        }
-    }
-}
-
-export function drawBootScreen() {
-    clearBuffer(screenBuffer);
-
-    const title = "Booting up TERM OS";
-    const titleRow = Math.floor(ROWS / 2) - 2;
-    const titleCol = Math.floor((COLS - title.length) / 2);
-    writeText(titleRow, titleCol, title);
-
-    const barRow = Math.floor(ROWS / 2);
-    const barCol = Math.floor((COLS - BOOT_TOTAL) / 2);
-    for (let i = 0; i < BOOT_TOTAL; i++) {
-        screenBuffer[barRow][barCol + i] = i < bootProgress ? "█" : "░";
-    }
-}
-
-export function startBootSequence() {
-    takingInput = false;
-    bootProgress = 0;
-    currentMode = APP_MODE;
-
-    const interval = setInterval(() => {
-        if (bootProgress < BOOT_TOTAL) {
-            bootProgress++;
-            drawBootScreen();
-        } else {
-            clearInterval(interval);
-            takingInput = true;
-            currentMode = SHELL_MODE;
-            pushLine("Boot complete!");
-            pushLine("Type 'help' for commands.");
-        }
-    }, 100);
-}
-
-export function pushLine(txt) {
-    const lines = txt.split("\n");
-    lines.forEach(line => {
-        if (historyBuffer.length >= ROWS - 1) historyBuffer.shift();
-        historyBuffer.push(line);
-    });
-}
-
-export function handleCommand(cmd) {
+function handleCommand(cmd) {
     const parts = cmd.trim().split(/\s+/);
     if (!parts[0]) return;
 
@@ -122,9 +61,9 @@ window.addEventListener("keydown", (e) => {
         return;
     }
 
-    if (e.key.length === 1 && !e.ctrlKey){
-         inputLine += e.key;
-    } else if (e.key === "Backspace") { 
+    if (e.key.length === 1 && !e.ctrlKey) {
+        inputLine += e.key;
+    } else if (e.key === "Backspace") {
         inputLine = inputLine.slice(0, -1);
     } else if (e.key === "Enter") {
         pushLine("> " + inputLine);

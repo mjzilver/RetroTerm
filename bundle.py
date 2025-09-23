@@ -1,12 +1,13 @@
 import os
 import re
 
-SRC_DIR = "."
+JS_DIR = "js"
 SHADER_DIR = "shaders"
-TEMPLATE = os.path.join(SRC_DIR, "index.template.html")
-OUTPUT = os.path.join(SRC_DIR, "index.html")
 
-def minify_js(content: str) -> str:
+TEMPLATE = "index.template.html"
+OUTPUT = os.path.join(JS_DIR, "index.html")
+
+def minify_js(content):
     content = re.sub(r"//.*", "", content)
     content = re.sub(r"/\*.*?\*/", "", content, flags=re.DOTALL)
     content = re.sub(r"\s+", " ", content)
@@ -14,13 +15,13 @@ def minify_js(content: str) -> str:
     content = re.sub(r"\bexport\b", "", content)
     return content.strip()
 
-def minify_glsl(content: str) -> str:
+def minify_glsl(content):
     content = re.sub(r"//.*", "", content)
     content = re.sub(r"/\*.*?\*/", "", content, flags=re.DOTALL)
     content = re.sub(r"\s+", " ", content)
     return content.strip()
 
-def minify_html(html: str) -> str:
+def minify_html(html):
     html = re.sub(r"<!--.*?-->", "", html, flags=re.DOTALL)
     html = re.sub(r">\s+<", "><", html)
     html = re.sub(r"\s+", " ", html)
@@ -41,11 +42,11 @@ for file in shader_files:
         f'<script id="{file}" type="x-shader/x-{shader_type}">{minify_glsl(content)}</script>'
     )
 
-js_files = [f for f in os.listdir(SRC_DIR) if f.endswith(".js")]
+js_files = [f for f in os.listdir(JS_DIR) if f.endswith(".js")]
 js_content = ""
 
 for file in js_files:
-    path = os.path.join(SRC_DIR, file)
+    path = os.path.join(JS_DIR, file)
     with open(path, "r", encoding="utf-8") as f:
         js_content += minify_js(f.read()) + "\n"
 
