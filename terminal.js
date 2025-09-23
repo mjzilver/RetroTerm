@@ -47,6 +47,8 @@ export function drawBootScreen() {
 }
 
 export function startBootSequence(onBootComplete) {
+    booting = true;
+    bootProgress = 0;
     const interval = setInterval(() => {
         if (bootProgress < BOOT_TOTAL) {
             bootProgress++;
@@ -79,11 +81,16 @@ export function handleCommand(cmd) {
         case "help":
             pushLine("Commands: help, clear, echo <txt>");
             break;
-        case "clear":
-            historyBuffer.length = 0;
-            break;
         case "echo":
             pushLine(parts.slice(1).join(" "));
+            break;
+        case "reboot":
+            startBootSequence(() => {
+                takingInput = true;
+                drawTextBuffer();
+            });
+        case "clear":
+            historyBuffer.length = 0;
             break;
         default:
             pushLine("Unknown command: " + parts[0]);

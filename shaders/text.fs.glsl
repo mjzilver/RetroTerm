@@ -3,6 +3,8 @@ uniform sampler2D uTex;
 varying vec2 vUV;
 uniform float uTime;
 
+const float scanlines = 800.0;
+
 float rand(vec2 co) {
     return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);
 }
@@ -17,6 +19,8 @@ void main() {
         textCol = texture2D(uTex, vec2(vUV.x + offset, uv.y)).rgb;
     }
 
+    float scan = 0.85 + 0.15 * sin(vUV.y * scanlines + uTime * 0.5);
+
     float alpha = step(0.01, length(textCol));
-    gl_FragColor = vec4(textCol, alpha);
+    gl_FragColor = vec4(textCol * scan, alpha);
 }

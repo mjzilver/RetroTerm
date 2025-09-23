@@ -10,11 +10,7 @@ float rand(vec2 co) {
 }
 
 void main() {
-    float line = floor(vUV.y * scanlines);
-    float lineJitter = (rand(vec2(line, floor(uTime * 50.0))) - 0.5) * 2.0;
-
-    float scanlines_n = scanlines + lineJitter;
-    float scan = 0.85 + 0.15 * sin(vUV.y * scanlines_n + uTime * 0.5);
+    float scan = 0.85 + 0.15 * sin(vUV.y * scanlines + uTime * 0.5);
 
     vec3 noise_flicker = vec3((rand(vUV * uTime) - 0.5) * 0.01);
     float vig = smoothstep(0.9, 0.5, length(vUV - 0.5));
