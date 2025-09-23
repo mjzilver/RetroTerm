@@ -67,8 +67,10 @@ gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 gl.clearColor(0, 0, 0, 1);
 
 function render(t) {
-    if (booting) drawBootScreen;
-    else drawTextBuffer(t);
+    if (booting) 
+        drawBootScreen();
+    else 
+        drawTextBuffer();
 
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, tex);

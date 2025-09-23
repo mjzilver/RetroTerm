@@ -120,7 +120,7 @@ window.addEventListener("keydown", (e) => {
     drawTextBuffer();
 });
 
-export function drawTextBuffer(t = 0) {
+export function drawTextBuffer() {
     screenBuffer = Array.from({ length: ROWS }, () => Array.from({ length: COLS }, () => " "));
     const startLine = Math.max(0, historyBuffer.length - (ROWS - 1));
     let screenLine = 0;
