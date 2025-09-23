@@ -17,10 +17,13 @@ ctx.font = `${FONT_SIZE}px "Consolas", monospace`;
 ctx.textBaseline = "top";
 
 export const historyBuffer = [];
-export let screenBuffer = Array.from({ length: ROWS }, () => Array.from({ length: COLS }, () => " "));
+export let screenBuffer = makeBuffer(ROWS, COLS);
 export let inputLine = "";
 export let takingInput = false;
-export let booting = true;
+
+const SHELL_MODE = "SHELL_MODE";
+const APP_MODE = "APP_MODE";
+let currentMode = SHELL_MODE;
 
 let cursorVisible = true;
 setInterval(() => cursorVisible = !cursorVisible, 500);
@@ -28,39 +31,55 @@ setInterval(() => cursorVisible = !cursorVisible, 500);
 let bootProgress = 0;
 const BOOT_TOTAL = 20;
 
-export function drawBootScreen() {
-    ctx.fillStyle = BG_COLOR;
-    ctx.fillRect(0, 0, textBuffer.width, textBuffer.height);
+function makeBuffer(rows, cols) {
+    return Array.from({ length: rows }, () => Array.from({ length: cols }, () => " "));
+}
 
-    ctx.fillStyle = TEXT_COLOR;
-    const title = "Booting up TERM OS";
-    const titleX = (textBuffer.width - ctx.measureText(title).width) / 2;
-    const titleY = textBuffer.height / 2 - FONT_SIZE * 2;
-    ctx.fillText(title, titleX, titleY);
-
-    const barX = textBuffer.width / 2 - BOOT_TOTAL * (FONT_SIZE * 0.6) / 2;
-    const barY = textBuffer.height / 2;
-    for (let i = 0; i < BOOT_TOTAL; i++) {
-        ctx.fillStyle = i < bootProgress ? ACTIVE_BOOT_BAR_COLOR : INACTIVE_BOOT_BAR_COLOR;
-        ctx.fillText("█", barX + i * (FONT_SIZE * 0.6), barY);
+function clearBuffer(buf) {
+    for (let r = 0; r < buf.length; r++) {
+        buf[r].fill(" ");
     }
 }
 
-export function startBootSequence(onBootComplete) {
-    booting = true;
+function writeText(row, col, text) {
+    for (let i = 0; i < text.length; i++) {
+        let c = col + i;
+        if (c >= 0 && c < COLS) {
+            screenBuffer[row][c] = text[i];
+        }
+    }
+}
+
+export function drawBootScreen() {
+    clearBuffer(screenBuffer);
+
+    const title = "Booting up TERM OS";
+    const titleRow = Math.floor(ROWS / 2) - 2;
+    const titleCol = Math.floor((COLS - title.length) / 2);
+    writeText(titleRow, titleCol, title);
+
+    const barRow = Math.floor(ROWS / 2);
+    const barCol = Math.floor((COLS - BOOT_TOTAL) / 2);
+    for (let i = 0; i < BOOT_TOTAL; i++) {
+        screenBuffer[barRow][barCol + i] = i < bootProgress ? "█" : "░";
+    }
+}
+
+export function startBootSequence() {
+    takingInput = false;
     bootProgress = 0;
+    currentMode = APP_MODE;
+
     const interval = setInterval(() => {
         if (bootProgress < BOOT_TOTAL) {
             bootProgress++;
             drawBootScreen();
         } else {
             clearInterval(interval);
-            booting = false;
             takingInput = true;
+            currentMode = SHELL_MODE;
             pushLine("Boot complete!");
             pushLine("Type 'help' for commands.");
-            drawTextBuffer();
-            if (onBootComplete) onBootComplete();
         }
     }, 100);
 }
@@ -85,10 +104,7 @@ export function handleCommand(cmd) {
             pushLine(parts.slice(1).join(" "));
             break;
         case "reboot":
-            startBootSequence(() => {
-                takingInput = true;
-                drawTextBuffer();
-            });
+            startBootSequence();
         case "clear":
             historyBuffer.length = 0;
             break;
@@ -103,7 +119,6 @@ window.addEventListener("keydown", (e) => {
     if (e.ctrlKey && e.key.toLowerCase() === "c") {
         inputLine = "";
         pushLine("^C");
-        drawTextBuffer();
         return;
     }
 
@@ -116,23 +131,23 @@ window.addEventListener("keydown", (e) => {
         handleCommand(inputLine);
         inputLine = "";
     }
-
-    drawTextBuffer();
 });
 
 export function drawTextBuffer() {
-    screenBuffer = Array.from({ length: ROWS }, () => Array.from({ length: COLS }, () => " "));
-    const startLine = Math.max(0, historyBuffer.length - (ROWS - 1));
-    let screenLine = 0;
-    for (let i = startLine; i < historyBuffer.length; i++) {
-        let line = historyBuffer[i];
-        while (line.length > 0) {
-            screenBuffer[screenLine] = line.slice(0, COLS).split("");
-            line = line.slice(COLS);
-            screenLine++;
+    if (currentMode == SHELL_MODE) {
+        screenBuffer = makeBuffer(ROWS, COLS);
+        const startLine = Math.max(0, historyBuffer.length - (ROWS - 1));
+        let screenLine = 0;
+        for (let i = startLine; i < historyBuffer.length; i++) {
+            let line = historyBuffer[i];
+            while (line.length > 0) {
+                screenBuffer[screenLine] = line.slice(0, COLS).split("");
+                line = line.slice(COLS);
+                screenLine++;
+                if (screenLine >= ROWS - 1) break;
+            }
             if (screenLine >= ROWS - 1) break;
         }
-        if (screenLine >= ROWS - 1) break;
     }
 
     ctx.fillStyle = BG_COLOR;
@@ -150,7 +165,4 @@ export function drawTextBuffer() {
     }
 }
 
-startBootSequence(() => {
-    takingInput = true;
-    drawTextBuffer();
-});
+startBootSequence();
