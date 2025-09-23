@@ -5,7 +5,7 @@ JS_DIR = "js"
 SHADER_DIR = "shaders"
 
 TEMPLATE = "index.template.html"
-OUTPUT = os.path.join(JS_DIR, "index.html")
+OUTPUT = "index.html"
 
 def minify_js(content):
     content = re.sub(r"//.*", "", content)

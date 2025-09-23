@@ -1,5 +1,6 @@
 export function makeBuffer(rows, cols) {
-    return Array.from({ length: rows }, () => Array.from({ length: cols }, () => " "));
+    return Array.from({ length: rows }, () => 
+        Array.from({ length: cols }, () => " "));
 }
 
 export function clearBuffer(buf) {
