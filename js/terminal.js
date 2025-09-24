@@ -73,7 +73,6 @@ window.addEventListener("keydown", (e) => {
 
     if (!takingInput) return;
 
-
     if (e.key.length === 1 && !e.ctrlKey) {
         inputLine += e.key;
     } else if (e.key === "Backspace") {

@@ -19,7 +19,7 @@ minify = args.minify
 
 def strip_js_imports(content):
     content = re.sub(r"\bimport\b.*?;", "", content)
-    content = re.sub(r"\bexport\b", "", content)
+    content = re.sub(r"\bexport\b\s+", "", content)
     return content.strip()
 
 def minify_js(content):
@@ -52,10 +52,15 @@ for file in shader_files:
     with open(path, "r", encoding="utf-8") as f:
         content = f.read()
     shader_type = "vertex" if file.endswith(".vs.glsl") else "fragment"
-    shader_content = minify_glsl(content) if minify else content
-    shader_scripts.append(
-        f'<script id="{file}" type="x-shader/x-{shader_type}">{shader_content}</script>'
-    )
+
+    if minify:
+        shader_scripts.append(
+            f'<script id="{file}" type="x-shader/x-{shader_type}">{minify_glsl(content)}</script>'
+        )
+    else:
+        shader_scripts.append(
+            f'<script id="{file}" type="x-shader/x-{shader_type}">\n{content}\n</script>'
+        )
 
 js_files = [f for f in os.listdir(JS_DIR) if f.endswith(".js")]
 js_content = ""
@@ -64,9 +69,15 @@ for file in js_files:
     path = os.path.join(JS_DIR, file)
     with open(path, "r", encoding="utf-8") as f:
         content = f.read()
-        js_content += (minify_js(content) if minify else strip_js_imports(content)) + "\n"
+        if minify:
+            js_content += minify_js(content)
+        else:
+            js_content += strip_js_imports(content) + "\n"
 
-js_script_tag = f"<script>{js_content}</script>"
+if minify:
+    js_script_tag = f"<script>{js_content}</script>"
+else:
+    js_script_tag = f"<script>\n{js_content}\n</script>"
 
 injection = "\n".join(shader_scripts + [js_script_tag])
 html = html.replace("<!-- INJECTION_HERE -->", injection)
