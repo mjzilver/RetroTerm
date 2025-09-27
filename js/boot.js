@@ -1,4 +1,5 @@
-import {clearBuffer, writeText, pushLine} from './buffer.js';
+import { clearBuffer, writeText, pushLine } from './buffer.js';
+import { APP_MODE, currentMode } from './terminal.js';
 
 let bootProgress = 0;
 const BOOT_TOTAL = 20;

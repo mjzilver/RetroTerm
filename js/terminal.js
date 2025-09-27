@@ -25,9 +25,9 @@ export let screenBuffer = makeBuffer(ROWS, COLS);
 export let inputLine = "";
 export let takingInput = false;
 
-const SHELL_MODE = "SHELL_MODE";
-const APP_MODE = "APP_MODE";
-let currentMode = SHELL_MODE;
+export const SHELL_MODE = "SHELL_MODE";
+export const APP_MODE = "APP_MODE";
+export let currentMode = SHELL_MODE;
 
 let currentEffect = null;
 
@@ -40,7 +40,7 @@ function handleCommand(cmd) {
 
     switch (parts[0]) {
         case "help":
-            pushLine("Commands: help, clear, echo <txt>");
+            pushLine("Commands: help, clear, echo <txt>, reboot, matrix");
             break;
         case "echo":
             pushLine(parts.slice(1).join(" "));
@@ -63,11 +63,9 @@ function handleCommand(cmd) {
 window.addEventListener("keydown", (e) => {
     if (e.ctrlKey && e.key.toLowerCase() === "c") {
         inputLine = "";
-        
         clearInterval(currentEffect);
         takingInput = true;
         currentMode = SHELL_MODE;
-
         return;
     }
 
