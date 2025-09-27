@@ -1,10 +1,7 @@
-import { clearBuffer, writeText, pushLine } from './buffer.js';
-import { APP_MODE, currentMode } from './terminal.js';
+var bootProgress = 0;
+var BOOT_TOTAL = 20;
 
-let bootProgress = 0;
-const BOOT_TOTAL = 20;
-
-export function drawBootScreen() {
+function drawBootScreen() {
     clearBuffer(screenBuffer);
 
     const title = "Booting up TERM OS";
@@ -19,7 +16,7 @@ export function drawBootScreen() {
     }
 }
 
-export function startBootEffect() {
+function startBootEffect() {
     takingInput = false;
     bootProgress = 0;
     currentMode = APP_MODE;

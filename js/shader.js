@@ -1,4 +1,4 @@
-export function createShader(gl, type, source) {
+function createShader(gl, type, source) {
   const shader = gl.createShader(type);
   gl.shaderSource(shader, source);
   gl.compileShader(shader);
@@ -8,7 +8,7 @@ export function createShader(gl, type, source) {
   return shader;
 }
 
-export function createProgram(gl, vsSource, fsSource) {
+function createProgram(gl, vsSource, fsSource) {
   const program = gl.createProgram();
   const vShader = createShader(gl, gl.VERTEX_SHADER, vsSource);
   const fShader = createShader(gl, gl.FRAGMENT_SHADER, fsSource);
@@ -23,6 +23,6 @@ export function createProgram(gl, vsSource, fsSource) {
   return program;
 }
 
-export function getShaderSource(id) {
+function getShaderSource(id) {
   return document.getElementById(id).textContent.trim();
 }

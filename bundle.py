@@ -17,13 +17,7 @@ parser.add_argument(
 args = parser.parse_args()
 minify = args.minify
 
-def strip_js_imports(content):
-    content = re.sub(r"\bimport\b.*?;", "", content)
-    content = re.sub(r"\bexport\b\s+", "", content)
-    return content.strip()
-
 def minify_js(content):
-    content = strip_js_imports(content)
     content = re.sub(r"//.*", "", content)
     content = re.sub(r"/\*.*?\*/", "", content, flags=re.DOTALL)
     content = re.sub(r"\s+", " ", content)
@@ -72,8 +66,8 @@ for file in js_files:
         if minify:
             js_content += minify_js(content)
         else:
-            js_content += strip_js_imports(content) + "\n"
-
+            js_content += content + "\n"
+            
 if minify:
     js_script_tag = f"<script>{js_content}</script>"
 else:

@@ -1,7 +1,4 @@
-import { clearBuffer } from "./buffer";
-import { screenBuffer } from "./terminal";
-
-const MATRIX_SYMBOLS = [
+var MATRIX_SYMBOLS = [
     "ｱ", "ｲ", "ｳ", "ｴ", "ｵ", "ｶ", "ｷ", "ｸ", "ｹ", "ｺ",
     "ｻ", "ｼ", "ｽ", "ｾ", "ｿ", "ﾀ", "ﾁ", "ﾂ", "ﾃ", "ﾄ",
     "ﾅ", "ﾆ", "ﾇ", "ﾈ", "ﾉ", "ﾊ", "ﾋ", "ﾌ", "ﾍ", "ﾎ",
@@ -14,7 +11,7 @@ const MATRIX_SYMBOLS = [
     "م", "ح", "ب", "ة", "س", "ل", "ا", "م", "ك", "و"
 ];
 
-export function drawMatrix() {
+function drawMatrix() {
     for (let y = 0; y < ROWS - 1; y++) {
         for (let x = 0; x < COLS; x++) {
             if (Math.random() < 0.05) screenBuffer[y][x] = " ";
@@ -34,7 +31,7 @@ export function drawMatrix() {
     }
 }
 
-export function startMatrixEffect() {
+function startMatrixEffect() {
     takingInput = false;
     currentMode = APP_MODE;
 

@@ -1,15 +1,15 @@
-export function makeBuffer(rows, cols) {
+function makeBuffer(rows, cols) {
     return Array.from({ length: rows }, () => 
         Array.from({ length: cols }, () => " "));
 }
 
-export function clearBuffer(buf) {
+function clearBuffer(buf) {
     for (let r = 0; r < buf.length; r++) {
         buf[r].fill(" ");
     }
 }
 
-export function writeText(row, col, text) {
+function writeText(row, col, text) {
     for (let i = 0; i < text.length; i++) {
         let c = col + i;
         if (c >= 0 && c < COLS) {
@@ -18,7 +18,7 @@ export function writeText(row, col, text) {
     }
 }
 
-export function pushLine(txt) {
+function pushLine(txt) {
     const lines = txt.split("\n");
     lines.forEach(line => {
         if (historyBuffer.length >= ROWS - 1) historyBuffer.shift();

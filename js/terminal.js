@@ -1,33 +1,29 @@
-import { startBootEffect } from './boot.js';
-import { makeBuffer } from './buffer.js';
-import { startMatrixEffect } from './matrix.js';
+const COLS = 80;
+const ROWS = 25;
+const FONT_SIZE = 18;
+const TEXT_COLOR = "#00FF55";
+const BG_COLOR = "#000000";
+const ACTIVE_BOOT_BAR_COLOR = "#00FF55";
+const INACTIVE_BOOT_BAR_COLOR = "#004400";
 
-export const COLS = 80;
-export const ROWS = 25;
-export const FONT_SIZE = 18;
-export const TEXT_COLOR = "#00FF55";
-export const BG_COLOR = "#000000";
-export const ACTIVE_BOOT_BAR_COLOR = "#00FF55";
-export const INACTIVE_BOOT_BAR_COLOR = "#004400";
+const CURSOR_WIDTH = 10;
+const CURSOR_HEIGHT = FONT_SIZE - 4;
 
-export const CURSOR_WIDTH = 10;
-export const CURSOR_HEIGHT = FONT_SIZE - 4;
-
-export const textBuffer = document.createElement("canvas");
+const textBuffer = document.createElement("canvas");
 textBuffer.width = COLS * (FONT_SIZE * 0.6);
 textBuffer.height = ROWS * FONT_SIZE;
-export const ctx = textBuffer.getContext("2d");
+const ctx = textBuffer.getContext("2d");
 ctx.font = `${FONT_SIZE}px "Cascadia Mono", monospace`;
 ctx.textBaseline = "top";
 
-export const historyBuffer = [];
-export let screenBuffer = makeBuffer(ROWS, COLS);
-export let inputLine = "";
-export let takingInput = false;
+const historyBuffer = [];
+let screenBuffer = makeBuffer(ROWS, COLS);
+let inputLine = "";
+let takingInput = false;
 
-export const SHELL_MODE = "SHELL_MODE";
-export const APP_MODE = "APP_MODE";
-export let currentMode = SHELL_MODE;
+const SHELL_MODE = "SHELL_MODE";
+const APP_MODE = "APP_MODE";
+let currentMode = SHELL_MODE;
 
 let currentEffect = null;
 
@@ -82,7 +78,7 @@ window.addEventListener("keydown", (e) => {
     }
 });
 
-export function drawTextBuffer() {
+function drawTextBuffer() {
     if (currentMode == SHELL_MODE) {
         screenBuffer = makeBuffer(ROWS, COLS);
         const startLine = Math.max(0, historyBuffer.length - (ROWS - 1));
